@@ -1,5 +1,5 @@
-const BASE = "/api";
 
+const BASE ="https://cabshare-backend-qx4c.onrender.com"
 // ── core request helper ───────────────────────────────────────────────────────
 async function request(path, options = {}) {
   const res = await fetch(`${BASE}${path}`, {
