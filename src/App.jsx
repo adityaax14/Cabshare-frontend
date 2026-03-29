@@ -3,7 +3,8 @@ import LoginPage     from "./pages/LoginPage.jsx";
 import FindRidesPage from "./pages/Findridespage.jsx";
 import PostRidePage  from "./pages/Postridepage.jsx";
 import MyRidesPage   from "./pages/Myridespage.jsx";
-import "./styles/Appshell.css";  // ✅ stays inside src
+import "./styles/Appshell.css";
+
 // ── Tab icons ─────────────────────────────────────────────────────────────────
 function IconFind({ active }) {
   return (
@@ -84,15 +85,13 @@ function Splash() {
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [checking, setChecking]     = useState(true); // checking auth on load
+  const [checking, setChecking]     = useState(true);
   const [activeTab, setActiveTab]   = useState("find");
 
-  // ── On mount: check if cookies are still valid ──────────────────────────────
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // if cookies exist and are valid, /user/me returns the user
-        const res = await fetch("http://localhost:5000/user/me", {
+        const res = await fetch("https://cabshare-backend-qx4c.onrender.com/user/me", {
           credentials: "include",
         });
         if (res.ok) {
@@ -107,7 +106,6 @@ export default function App() {
     checkAuth();
   }, []);
 
-  // show splash while checking cookies
   if (checking) return <Splash />;
 
   if (!isLoggedIn) {
