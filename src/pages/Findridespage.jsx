@@ -2,7 +2,92 @@ import { useState, useEffect, useMemo } from "react";
 import { apiGetRides } from "../services/api";
 import "../styles/Findridespage.css";
 
+// ── Custom Time Picker ────────────────────────────────────────────────────────
+function TimePicker({ value, onChange }) {
+  const [open, setOpen] = useState(false);
+  const [hour, setHour] = useState("--");
+  const [minute, setMinute] = useState("--");
+  const [period, setPeriod] = useState("AM");
 
+  const hours   = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0"));
+  const minutes = ["00", "15", "30", "45"];
+
+  const handleSet = () => {
+    if (hour === "--" || minute === "--") { onChange(""); setOpen(false); return; }
+    let h24 = parseInt(hour);
+    if (period === "AM" && h24 === 12) h24 = 0;
+    if (period === "PM" && h24 !== 12) h24 += 12;
+    onChange(`${String(h24).padStart(2, "0")}:${minute}`);
+    setOpen(false);
+  };
+
+  const handleClear = () => {
+    setHour("--"); setMinute("--"); setPeriod("AM");
+    onChange(""); setOpen(false);
+  };
+
+  const display = value
+    ? (() => {
+        const [h, m] = value.split(":").map(Number);
+        const ap = h >= 12 ? "PM" : "AM";
+        const h12 = h % 12 || 12;
+        return `${String(h12).padStart(2, "0")}:${String(m).padStart(2, "0")} ${ap}`;
+      })()
+    : null;
+
+  return (
+    <div className="tp-wrap">
+      <button className={`tp-trigger ${value ? "active" : ""}`} onClick={() => setOpen(o => !o)}>
+        <span className="tp-clock">🕐</span>
+        <span>{display || "Leave time"}</span>
+        {value && (
+          <span className="tp-clear-x" onClick={e => { e.stopPropagation(); handleClear(); }}>×</span>
+        )}
+      </button>
+
+      {open && (
+        <div className="tp-dropdown">
+          <p className="tp-label">Departure around…</p>
+          <div className="tp-cols">
+            <div className="tp-col">
+              <p className="tp-col-label">Hour</p>
+              <div className="tp-scroll">
+                {hours.map(h => (
+                  <button key={h} className={`tp-item ${hour === h ? "sel" : ""}`}
+                    onClick={() => setHour(h)}>{h}</button>
+                ))}
+              </div>
+            </div>
+            <div className="tp-col">
+              <p className="tp-col-label">Min</p>
+              <div className="tp-scroll">
+                {minutes.map(m => (
+                  <button key={m} className={`tp-item ${minute === m ? "sel" : ""}`}
+                    onClick={() => setMinute(m)}>{m}</button>
+                ))}
+              </div>
+            </div>
+            <div className="tp-col">
+              <p className="tp-col-label">Period</p>
+              <div className="tp-scroll">
+                {["AM", "PM"].map(p => (
+                  <button key={p} className={`tp-item ${period === p ? "sel" : ""}`}
+                    onClick={() => setPeriod(p)}>{p}</button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="tp-actions">
+            <button className="tp-cancel" onClick={() => setOpen(false)}>Cancel</button>
+            <button className="tp-set" onClick={handleSet}>Set ±2 hrs</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Logo ──────────────────────────────────────────────────────────────────────
 function Logo({ size = 32 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
@@ -24,7 +109,7 @@ function Logo({ size = 32 }) {
   );
 }
 
-// ── WhatsApp SVG icon ─────────────────────────────────────────────────────────
+// ── WhatsApp icon ─────────────────────────────────────────────────────────────
 function WaIcon() {
   return (
     <svg className="wa-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -52,27 +137,18 @@ function initials(name = "") {
   return name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
 }
 
-// time string "HH:MM:SS" → minutes since midnight (for sorting)
 function timeToMins(t) {
   if (!t) return 9999;
   const [h, m] = t.split(":").map(Number);
   return h * 60 + m;
 }
 
-// ── Sorting logic ─────────────────────────────────────────────────────────────
-// Priority:
-// 1. Earliest departure date
-// 2. Closest leave_campus_at time
-// 3. More filled seats first (e.g. 3/4 before 1/4) — easier to complete the pool
 function sortRides(rides) {
   return [...rides].sort((a, b) => {
-    // 1. date
     if (a.departure_date < b.departure_date) return -1;
     if (a.departure_date > b.departure_date) return 1;
-    // 2. leave time (ascending)
     const timeDiff = timeToMins(a.leave_campus_at) - timeToMins(b.leave_campus_at);
     if (timeDiff !== 0) return timeDiff;
-    // 3. filled seats descending (more filled = higher priority)
     return b.filled_seats - a.filled_seats;
   });
 }
@@ -96,13 +172,11 @@ function RideCard({ ride }) {
     `${ride.flight_number ? ` for flight ${ride.flight_number}` : ""}` +
     ` on ${fmtDate(ride.departure_date)}. Are you still looking for pool mates?`
   );
-  const waUrl = `https://wa.me/91${poster?.phone}?text=${waMsg}`;
+  const waUrl  = `https://wa.me/91${poster?.phone}?text=${waMsg}`;
   const callUrl = `tel:+91${poster?.phone}`;
 
   return (
     <div className={`ride-card ${isUrgent ? "urgent" : ""}`}>
-
-      {/* top */}
       <div className="card-top">
         {ride.flight_number
           ? <span className="card-flight">{ride.flight_number}</span>
@@ -111,7 +185,6 @@ function RideCard({ ride }) {
         <StatusBadge filled={ride.filled_seats} total={ride.pool_size} />
       </div>
 
-      {/* meta */}
       <div className="card-meta">
         <div className="meta-item">
           <span className="meta-icon">📅</span>
@@ -133,22 +206,15 @@ function RideCard({ ride }) {
         </div>
       </div>
 
-      {/* seats */}
       <div className="seats-row">
         {Array.from({ length: ride.pool_size }).map((_, i) => (
-          <div
-            key={i}
-            className={`seat-dot ${i < ride.filled_seats ? "filled" : "empty"}`}
-          />
+          <div key={i} className={`seat-dot ${i < ride.filled_seats ? "filled" : "empty"}`} />
         ))}
-        <span className="seats-label">
-          {ride.filled_seats}/{ride.pool_size} joined
-        </span>
+        <span className="seats-label">{ride.filled_seats}/{ride.pool_size} joined</span>
       </div>
 
       <div className="card-div" />
 
-      {/* poster */}
       <div className="poster-row">
         <div className="poster-avatar">{initials(poster?.full_name)}</div>
         <div className="poster-info">
@@ -157,37 +223,28 @@ function RideCard({ ride }) {
         </div>
       </div>
 
-      {/* note */}
-      {ride.note && (
-        <div className="card-note">"{ride.note}"</div>
-      )}
+      {ride.note && <div className="card-note">"{ride.note}"</div>}
 
-      {/* actions */}
       {isFull ? (
         <div className="full-overlay">Pool is full — check others</div>
       ) : (
         <div className="card-actions">
           <a className="wa-btn" href={waUrl} target="_blank" rel="noreferrer">
-            <WaIcon />
-            WhatsApp
+            <WaIcon /> WhatsApp
           </a>
-          <a className="call-btn" href={callUrl}>
-            📞 Call
-          </a>
+          <a className="call-btn" href={callUrl}>📞 Call</a>
         </div>
       )}
-
     </div>
   );
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function FindRidesPage() {
-  const [rides, setRides]       = useState([]);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState("");
+  const [rides, setRides]     = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError]     = useState("");
 
-  // filters
   const [filterDate, setFilterDate]     = useState("");
   const [filterFlight, setFilterFlight] = useState("");
   const [filterTime, setFilterTime]     = useState("");
@@ -205,38 +262,21 @@ export default function FindRidesPage() {
     }
   };
 
-  useEffect(() => {
-    fetchRides();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  useEffect(() => { fetchRides(); }, []); // eslint-disable-line
+  useEffect(() => { fetchRides(); }, [filterDate]); // eslint-disable-line
 
-  // re-fetch when date filter changes
-  useEffect(() => {
-    fetchRides();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterDate]);
-
-  // ── Client-side filter + sort ───────────────────────────────────────────────
   const displayed = useMemo(() => {
     let result = [...rides];
-
-    // flight number filter
     if (filterFlight.trim()) {
       result = result.filter(r =>
         r.flight_number?.toLowerCase().includes(filterFlight.trim().toLowerCase())
       );
     }
-
-    // time window filter — show rides leaving within ±2 hrs of entered time
     if (filterTime) {
       const [fh, fm] = filterTime.split(":").map(Number);
       const targetMins = fh * 60 + fm;
-      result = result.filter(r => {
-        const leaveMins = timeToMins(r.leave_campus_at);
-        return Math.abs(leaveMins - targetMins) <= 120; // within 2 hours
-      });
+      result = result.filter(r => Math.abs(timeToMins(r.leave_campus_at) - targetMins) <= 120);
     }
-
     return sortRides(result);
   }, [rides, filterFlight, filterTime]);
 
@@ -251,7 +291,6 @@ export default function FindRidesPage() {
   return (
     <div className="find-shell">
 
-      {/* nav */}
       <div className="find-nav">
         <div className="find-nav-brand">
           <Logo size={28} />
@@ -264,7 +303,6 @@ export default function FindRidesPage() {
         )}
       </div>
 
-      {/* filters */}
       <div className="find-filters">
         <div className="filter-row">
           <input
@@ -272,7 +310,6 @@ export default function FindRidesPage() {
             type="date"
             value={filterDate}
             onChange={e => setFilterDate(e.target.value)}
-            title="Filter by date"
           />
           <input
             className="filter-input flight"
@@ -283,29 +320,20 @@ export default function FindRidesPage() {
             style={{ maxWidth: 120 }}
           />
         </div>
+
+        {/* ✅ Custom time picker replaces native time input */}
         <div className="filter-row">
-          <input
-            className="filter-input"
-            type="time"
-            value={filterTime}
-            onChange={e => setFilterTime(e.target.value)}
-            title="Show rides leaving around this time (±2 hrs)"
-            style={{ flex: 1 }}
-          />
+          <TimePicker value={filterTime} onChange={setFilterTime} />
           {hasFilters && (
-            <button className="clear-btn" onClick={clearFilters}>
-              Clear
-            </button>
+            <button className="clear-btn" onClick={clearFilters}>Clear</button>
           )}
         </div>
-        <p className="sort-note">
-          Sorted by: date · leaving time · seats filled
-        </p>
+
+        <p className="sort-note">Sorted by: date · leaving time · seats filled</p>
       </div>
 
       <div className="find-divider" />
 
-      {/* content */}
       {loading ? (
         <div className="find-loading">
           <div className="find-spinner" />
@@ -313,8 +341,7 @@ export default function FindRidesPage() {
         </div>
       ) : error ? (
         <div className="find-error">
-          {error}
-          <br />
+          {error}<br />
           <button className="retry-btn" onClick={fetchRides}>Retry</button>
         </div>
       ) : displayed.length === 0 ? (
@@ -331,9 +358,7 @@ export default function FindRidesPage() {
         </div>
       ) : (
         <div className="find-list">
-          {displayed.map(ride => (
-            <RideCard key={ride.id} ride={ride} />
-          ))}
+          {displayed.map(ride => <RideCard key={ride.id} ride={ride} />)}
         </div>
       )}
 
