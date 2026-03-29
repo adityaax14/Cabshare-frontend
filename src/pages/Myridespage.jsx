@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { apiGetMyRides, apiCancelRide, apiUpdateSeats, apiLogout } from "../services/api";
-import "../styles/MyRidesPage.css";
+import "../styles/Myridespage.css";
 
 function Logo({ size = 28 }) {
   return (
