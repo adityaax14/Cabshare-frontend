@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { apiCreateRide } from "../services/api";
-import "../styles/PostRidePage.css";
+import "../styles/Postridepage.css";
 
 
 
