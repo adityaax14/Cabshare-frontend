@@ -2,8 +2,99 @@ import { useState } from "react";
 import { apiCreateRide } from "../services/api";
 import "../styles/Postridepage.css";
 
+// ── Custom Time Picker ────────────────────────────────────────────────────────
+function TimePicker({ value, onChange, placeholder = "Select time", error }) {
+  const [open, setOpen] = useState(false);
+  const [hour, setHour] = useState("--");
+  const [minute, setMinute] = useState("--");
+  const [period, setPeriod] = useState("AM");
 
+  const hours   = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0"));
+  const minutes = Array.from({ length: 12 }, (_, i) => String(i * 5).padStart(2, "0"));
 
+  const handleSet = () => {
+    if (hour === "--" || minute === "--") { onChange(""); setOpen(false); return; }
+    let h24 = parseInt(hour);
+    if (period === "AM" && h24 === 12) h24 = 0;
+    if (period === "PM" && h24 !== 12) h24 += 12;
+    onChange(`${String(h24).padStart(2, "0")}:${minute}`);
+    setOpen(false);
+  };
+
+  const handleClear = () => {
+    setHour("--"); setMinute("--"); setPeriod("AM");
+    onChange(""); setOpen(false);
+  };
+
+  const display = value
+    ? (() => {
+        const [h, m] = value.split(":").map(Number);
+        const ap = h >= 12 ? "PM" : "AM";
+        const h12 = h % 12 || 12;
+        return `${String(h12).padStart(2, "0")}:${String(m).padStart(2, "0")} ${ap}`;
+      })()
+    : null;
+
+  return (
+    <div className="tp-wrap">
+      <button
+        type="button"
+        className={`tp-trigger ${value ? "active" : ""} ${error ? "tp-error" : ""}`}
+        onClick={() => setOpen(o => !o)}
+      >
+        <span className="tp-clock">🕐</span>
+        <span style={{ color: display ? "#f0ede8" : "#4a5568" }}>{display || placeholder}</span>
+        {value && (
+          <span className="tp-clear-x" onClick={e => { e.stopPropagation(); handleClear(); }}>×</span>
+        )}
+      </button>
+
+      {open && (
+        <div className="tp-dropdown">
+          <p className="tp-label">Select time</p>
+          <div className="tp-cols">
+            <div className="tp-col">
+              <p className="tp-col-label">Hour</p>
+              <div className="tp-scroll">
+                {hours.map(h => (
+                  <button type="button" key={h}
+                    className={`tp-item ${hour === h ? "sel" : ""}`}
+                    onClick={() => setHour(h)}>{h}</button>
+                ))}
+              </div>
+            </div>
+            <div className="tp-col">
+              <p className="tp-col-label">Min</p>
+              <div className="tp-scroll">
+                {minutes.map(m => (
+                  <button type="button" key={m}
+                    className={`tp-item ${minute === m ? "sel" : ""}`}
+                    onClick={() => setMinute(m)}>{m}</button>
+                ))}
+              </div>
+            </div>
+            <div className="tp-col">
+              <p className="tp-col-label">Period</p>
+              <div className="tp-scroll">
+                {["AM", "PM"].map(p => (
+                  <button type="button" key={p}
+                    className={`tp-item ${period === p ? "sel" : ""}`}
+                    onClick={() => setPeriod(p)}>{p}</button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="tp-actions">
+            <button type="button" className="tp-cancel" onClick={() => setOpen(false)}>Cancel</button>
+            <button type="button" className="tp-set" onClick={handleSet}>Set Time</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Logo ──────────────────────────────────────────────────────────────────────
 function Logo({ size = 32 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
@@ -189,12 +280,8 @@ export default function PostRidePage({ onRidePosted, onBack }) {
             <span>Mangalore (IXE)</span>
           </div>
         </div>
-        <button className="btn-outline" onClick={resetForm}>
-          Post another ride
-        </button>
-        <button className="btn-outline" onClick={onBack}>
-          ← View all rides
-        </button>
+        <button className="btn-outline" onClick={resetForm}>Post another ride</button>
+        <button className="btn-outline" onClick={onBack}>← View all rides</button>
       </div>
     </div>
   );
@@ -203,7 +290,6 @@ export default function PostRidePage({ onRidePosted, onBack }) {
   return (
     <div className="post-shell">
 
-      {/* nav */}
       <div className="post-nav">
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <Logo size={30} />
@@ -221,10 +307,7 @@ export default function PostRidePage({ onRidePosted, onBack }) {
         <div className="post-section">
           <p className="post-section-label">Flight Details</p>
 
-          <Field
-            label="Flight Number"
-            hint="Optional — e.g. AI302, 6E201"
-          >
+          <Field label="Flight Number" hint="Optional — e.g. AI302, 6E201">
             <input
               type="text"
               placeholder="e.g. AI302"
@@ -246,11 +329,11 @@ export default function PostRidePage({ onRidePosted, onBack }) {
             </Field>
 
             <Field label="Flight Time" error={errors.departure_time} hint="From your ticket">
-              <input
-                type="time"
+              <TimePicker
                 value={form.departure_time}
-                onChange={e => setField("departure_time", e.target.value)}
-                className={errors.departure_time ? "error" : ""}
+                onChange={v => setField("departure_time", v)}
+                placeholder="Flight time"
+                error={errors.departure_time}
               />
             </Field>
           </div>
@@ -265,11 +348,11 @@ export default function PostRidePage({ onRidePosted, onBack }) {
             error={errors.leave_campus_at}
             hint="When should the cab leave MIT Manipal?"
           >
-            <input
-              type="time"
+            <TimePicker
               value={form.leave_campus_at}
-              onChange={e => setField("leave_campus_at", e.target.value)}
-              className={errors.leave_campus_at ? "error" : ""}
+              onChange={v => setField("leave_campus_at", v)}
+              placeholder="Departure time"
+              error={errors.leave_campus_at}
             />
           </Field>
         </div>
@@ -277,14 +360,8 @@ export default function PostRidePage({ onRidePosted, onBack }) {
         {/* ── Section 3: Pool size ── */}
         <div className="post-section">
           <p className="post-section-label">Pool Size</p>
-          <Field
-            hint="Total number of people including you"
-            error={errors.pool_size}
-          >
-            <PoolStepper
-              value={form.pool_size}
-              onChange={v => setField("pool_size", v)}
-            />
+          <Field hint="Total number of people including you" error={errors.pool_size}>
+            <PoolStepper value={form.pool_size} onChange={v => setField("pool_size", v)} />
           </Field>
         </div>
 
@@ -305,12 +382,9 @@ export default function PostRidePage({ onRidePosted, onBack }) {
 
       </div>
 
-      {/* submit */}
       <div className="post-submit">
         <button className="submit-btn" onClick={handleSubmit} disabled={loading}>
-          {loading
-            ? <><span className="spinner" />Posting…</>
-            : "Post Ride Request →"}
+          {loading ? <><span className="spinner" />Posting…</> : "Post Ride Request →"}
         </button>
       </div>
 
