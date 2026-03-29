@@ -462,3 +462,43 @@
   .ride-card { padding: 14px; }
   .card-flight { font-size: 16px; }
 }
+/* ── Fix date & time inputs on mobile ───────────────────────────────────── */
+.filter-input[type="date"],
+.filter-input[type="time"] {
+  color-scheme: dark;
+  color: #f0ede8;
+}
+
+/* Make the placeholder text visible */
+.filter-input[type="date"]:not(:valid),
+.filter-input[type="time"]:not(:valid) {
+  color: #4a5568;
+}
+
+/* Style the calendar/clock icons */
+.filter-input[type="date"]::-webkit-calendar-picker-indicator,
+.filter-input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) opacity(0.5);
+  cursor: pointer;
+}
+
+.filter-input[type="date"]::-webkit-calendar-picker-indicator:hover,
+.filter-input[type="time"]::-webkit-calendar-picker-indicator:hover {
+  filter: invert(1) opacity(0.9);
+}
+
+/* Fix inner text color on Android Chrome */
+.filter-input[type="date"]::-webkit-datetime-edit,
+.filter-input[type="time"]::-webkit-datetime-edit {
+  color: #f0ede8;
+}
+
+.filter-input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+.filter-input[type="time"]::-webkit-datetime-edit-fields-wrapper {
+  color: #f0ede8;
+}
+
+.filter-input[type="date"]::-webkit-datetime-edit-text,
+.filter-input[type="time"]::-webkit-datetime-edit-text {
+  color: #4a5568;
+}
