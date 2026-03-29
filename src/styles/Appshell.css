@@ -1,0 +1,81 @@
+/* ── App shell ───────────────────────────────────────────────────────────── */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #080e17;
+}
+
+/* content scrolls, tab bar stays fixed at bottom */
+.app-content {
+  flex: 1;
+  overflow-y: auto;
+  /* leave room for the tab bar */
+  padding-bottom: 70px;
+}
+
+/* ── Tab bar ─────────────────────────────────────────────────────────────── */
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 62px;
+  background: #0a1018;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  display: flex;
+  align-items: stretch;
+  z-index: 100;
+  /* safe area for phones with home bar */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.tab-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 0;
+  transition: background 0.15s;
+  position: relative;
+}
+
+.tab-btn:active {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* active indicator line at top */
+.tab-btn.active::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  border-radius: 0 0 2px 2px;
+  background: currentColor;
+}
+
+.tab-btn.active:nth-child(1)::before { background: #1a6bbf; }
+.tab-btn.active:nth-child(2)::before { background: #f07020; }
+.tab-btn.active:nth-child(3)::before { background: #1d9e75; }
+
+/* labels */
+.tab-label {
+  font-size: 10px;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-weight: 500;
+  color: #4a5568;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  transition: color 0.15s;
+}
+
+.tab-label.color-find    { color: #1a6bbf; }
+.tab-label.color-post    { color: #f07020; }
+.tab-label.color-myrides { color: #1d9e75; }

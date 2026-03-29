@@ -1,0 +1,527 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Shell ───────────────────────────────────────────────────────────────── */
+.post-shell {
+  min-height: 100vh;
+  background: #080e17;
+  background-image:
+    radial-gradient(ellipse at 20% 10%, rgba(26, 107, 191, 0.07) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 90%, rgba(240, 112, 32, 0.04) 0%, transparent 60%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 0 48px;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  color: #f0ede8;
+}
+
+/* ── Top nav ─────────────────────────────────────────────────────────────── */
+.post-nav {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 12px;
+}
+
+.post-nav-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.post-nav-title span {
+  color: #f07020;
+}
+
+.post-nav-airport {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(26, 107, 191, 0.1);
+  border: 1px solid rgba(26, 107, 191, 0.2);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 12px;
+  color: #1a6bbf;
+  font-weight: 500;
+}
+
+.airport-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #1a6bbf;
+}
+
+/* ── Card ────────────────────────────────────────────────────────────────── */
+.post-card {
+  width: 100%;
+  max-width: 480px;
+  padding: 0 16px;
+}
+
+/* ── Section ─────────────────────────────────────────────────────────────── */
+.post-section {
+  background: #0d1520;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 12px;
+}
+
+.post-section-label {
+  font-size: 11px;
+  color: #6b7a8d;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: 500;
+  margin-bottom: 14px;
+}
+
+/* ── Flight search row ───────────────────────────────────────────────────── */
+.flight-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.flight-input {
+  flex: 1;
+  background: #111827;
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 13px 14px;
+  color: #f0ede8;
+  font-size: 16px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  outline: none;
+  text-transform: uppercase;
+  transition: border-color 0.2s;
+}
+
+.flight-input::placeholder {
+  color: #2d3748;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.flight-input:focus {
+  border-color: #1a6bbf;
+}
+
+.flight-input.error {
+  border-color: #e24b4a;
+}
+
+.search-btn {
+  background: #1a6bbf;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 0 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: background 0.2s, opacity 0.2s;
+  min-width: 80px;
+}
+
+.search-btn:hover {
+  background: #1e78d4;
+}
+
+.search-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Detected flight card ────────────────────────────────────────────────── */
+.detected-card {
+  background: rgba(29, 158, 117, 0.06);
+  border: 1px solid rgba(29, 158, 117, 0.18);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 4px;
+}
+
+.detected-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.detected-fn {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.detected-badge {
+  font-size: 11px;
+  background: rgba(29, 158, 117, 0.12);
+  color: #1d9e75;
+  border: 1px solid rgba(29, 158, 117, 0.2);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-weight: 500;
+}
+
+.detected-airline {
+  font-size: 13px;
+  color: #6b7a8d;
+  margin-bottom: 10px;
+}
+
+.detected-meta {
+  display: flex;
+  gap: 16px;
+}
+
+.detected-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.detected-meta-item span:first-child {
+  font-size: 10px;
+  color: #4a5568;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.detected-meta-item span:last-child {
+  font-size: 14px;
+  font-weight: 500;
+  color: #f0ede8;
+}
+
+.not-found {
+  font-size: 13px;
+  color: #e24b4a;
+  padding: 4px 0;
+}
+
+/* ── Field ───────────────────────────────────────────────────────────────── */
+.post-field {
+  margin-bottom: 12px;
+}
+
+.post-field:last-child {
+  margin-bottom: 0;
+}
+
+.post-field label {
+  display: block;
+  font-size: 11px;
+  color: #6b7a8d;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: 500;
+  margin-bottom: 7px;
+}
+
+.post-field input {
+  width: 100%;
+  background: #111827;
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 13px 14px;
+  color: #f0ede8;
+  font-size: 16px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.post-field input:focus {
+  border-color: #1a6bbf;
+}
+
+.post-field input::placeholder {
+  color: #2d3748;
+}
+
+.post-field input.prefilled {
+  border-color: rgba(29, 158, 117, 0.3);
+  color: #1d9e75;
+}
+
+.post-field input.error {
+  border-color: #e24b4a;
+}
+
+.field-error {
+  font-size: 12px;
+  color: #e24b4a;
+  margin-top: 5px;
+}
+
+.field-hint {
+  font-size: 12px;
+  color: #4a5568;
+  margin-top: 5px;
+}
+
+/* ── Two col grid ────────────────────────────────────────────────────────── */
+.post-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* ── Pool size ───────────────────────────────────────────────────────────── */
+.pool-size-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: #111827;
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.pool-size-wrap:focus-within {
+  border-color: #1a6bbf;
+}
+
+.pool-size-btn {
+  width: 44px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.04);
+  border: none;
+  color: #f0ede8;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.pool-size-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.pool-size-btn:active {
+  background: rgba(26, 107, 191, 0.2);
+}
+
+.pool-size-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #f0ede8;
+  font-size: 18px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+  padding: 0;
+  width: 100%;
+}
+
+/* ── Note box ────────────────────────────────────────────────────────────── */
+.post-field textarea {
+  width: 100%;
+  background: #111827;
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 13px 14px;
+  color: #f0ede8;
+  font-size: 15px;
+  font-family: inherit;
+  outline: none;
+  resize: none;
+  line-height: 1.5;
+  transition: border-color 0.2s;
+}
+
+.post-field textarea:focus {
+  border-color: #1a6bbf;
+}
+
+.post-field textarea::placeholder {
+  color: #2d3748;
+}
+
+/* ── Submit button ───────────────────────────────────────────────────────── */
+.post-submit {
+  width: 100%;
+  max-width: 480px;
+  padding: 0 16px;
+  margin-top: 4px;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 15px 0;
+  background: linear-gradient(135deg, #f07020, #d45f10);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.02em;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.submit-btn:active {
+  transform: scale(0.98);
+}
+
+.submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Success screen ──────────────────────────────────────────────────────── */
+.success-shell {
+  min-height: 100vh;
+  background: #080e17;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  padding: 24px;
+}
+
+.success-card {
+  width: 100%;
+  max-width: 400px;
+  background: #0d1520;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 20px;
+  padding: 36px 24px;
+  text-align: center;
+}
+
+.success-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(29, 158, 117, 0.1);
+  border: 1px solid rgba(29, 158, 117, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  font-size: 28px;
+}
+
+.success-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #f0ede8;
+  margin-bottom: 8px;
+}
+
+.success-sub {
+  font-size: 14px;
+  color: #6b7a8d;
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+.success-detail {
+  background: #111827;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.success-detail-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 4px 0;
+}
+
+.success-detail-row span:first-child {
+  color: #4a5568;
+}
+
+.success-detail-row span:last-child {
+  color: #f0ede8;
+  font-weight: 500;
+}
+
+.btn-outline {
+  width: 100%;
+  padding: 13px 0;
+  background: transparent;
+  color: #1a6bbf;
+  border: 1.5px solid rgba(26, 107, 191, 0.35);
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  margin-bottom: 10px;
+  transition: background 0.15s;
+}
+
+.btn-outline:hover {
+  background: rgba(26, 107, 191, 0.06);
+}
+
+/* ── Server error ────────────────────────────────────────────────────────── */
+.server-error {
+  background: rgba(226, 75, 74, 0.08);
+  border: 1px solid rgba(226, 75, 74, 0.25);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #e24b4a;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+/* ── Spinner ─────────────────────────────────────────────────────────────── */
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 400px) {
+  .post-section {
+    padding: 14px;
+  }
+
+  .detected-meta {
+    gap: 10px;
+  }
+}

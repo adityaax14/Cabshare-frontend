@@ -1,0 +1,464 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Shell ───────────────────────────────────────────────────────────────── */
+.find-shell {
+  min-height: 100vh;
+  background: #080e17;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  color: #f0ede8;
+  padding-bottom: 48px;
+}
+
+/* ── Nav ─────────────────────────────────────────────────────────────────── */
+.find-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  position: sticky;
+  top: 0;
+  background: rgba(8, 14, 23, 0.95);
+  backdrop-filter: blur(10px);
+  z-index: 10;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.find-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.find-nav-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.find-nav-title span {
+  color: #f07020;
+}
+
+.find-nav-count {
+  font-size: 12px;
+  color: #4a5568;
+  background: #111827;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 20px;
+  padding: 4px 10px;
+}
+
+/* ── Filters ─────────────────────────────────────────────────────────────── */
+.find-filters {
+  padding: 14px 16px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.filter-row {
+  display: flex;
+  gap: 8px;
+}
+
+.filter-input {
+  flex: 1;
+  background: #0d1520;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 10px 13px;
+  color: #f0ede8;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.filter-input:focus {
+  border-color: #1a6bbf;
+}
+
+.filter-input::placeholder {
+  color: #2d3748;
+}
+
+.filter-input.flight {
+  text-transform: uppercase;
+  font-family: 'Syne', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+.filter-input.flight::placeholder {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.clear-btn {
+  background: rgba(226,75,74,0.08);
+  border: 1px solid rgba(226,75,74,0.2);
+  color: #e24b4a;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.clear-btn:hover {
+  background: rgba(226,75,74,0.14);
+}
+
+.sort-note {
+  font-size: 11px;
+  color: #2d3748;
+  padding: 0 2px;
+}
+
+/* ── Divider ─────────────────────────────────────────────────────────────── */
+.find-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.05);
+  margin: 4px 16px 14px;
+}
+
+/* ── List ────────────────────────────────────────────────────────────────── */
+.find-list {
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── Ride card ───────────────────────────────────────────────────────────── */
+.ride-card {
+  background: #0d1520;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 16px;
+  transition: border-color 0.2s;
+}
+
+.ride-card:hover {
+  border-color: rgba(255,255,255,0.1);
+}
+
+.ride-card.urgent {
+  border-color: rgba(240,112,32,0.2);
+}
+
+/* top row */
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.card-flight {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #f0ede8;
+}
+
+.card-flight.no-flight {
+  font-size: 14px;
+  font-weight: 500;
+  color: #4a5568;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* status badge */
+.status-badge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.status-badge.open {
+  background: rgba(29,158,117,0.1);
+  color: #1d9e75;
+  border: 1px solid rgba(29,158,117,0.2);
+}
+
+.status-badge.one-left {
+  background: rgba(240,112,32,0.1);
+  color: #f07020;
+  border: 1px solid rgba(240,112,32,0.2);
+}
+
+.status-badge.full {
+  background: rgba(226,75,74,0.1);
+  color: #e24b4a;
+  border: 1px solid rgba(226,75,74,0.2);
+}
+
+/* meta row */
+.card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin-bottom: 12px;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: #6b7a8d;
+}
+
+.meta-icon {
+  font-size: 12px;
+}
+
+/* seats dots */
+.seats-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+
+.seat-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.seat-dot.filled {
+  background: #f07020;
+}
+
+.seat-dot.empty {
+  background: #1a2535;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.seats-label {
+  font-size: 12px;
+  color: #4a5568;
+  margin-left: 4px;
+}
+
+/* divider */
+.card-div {
+  height: 1px;
+  background: rgba(255,255,255,0.05);
+  margin-bottom: 12px;
+}
+
+/* poster row */
+.poster-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.poster-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(26,107,191,0.12);
+  color: #1a6bbf;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: 'Syne', sans-serif;
+  flex-shrink: 0;
+}
+
+.poster-info {
+  flex: 1;
+}
+
+.poster-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #f0ede8;
+}
+
+.poster-phone {
+  font-size: 12px;
+  color: #4a5568;
+  margin-top: 1px;
+}
+
+/* action buttons */
+.card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.wa-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  background: rgba(29,158,117,0.08);
+  border: 1px solid rgba(29,158,117,0.2);
+  color: #1d9e75;
+  border-radius: 10px;
+  padding: 10px 0;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.wa-btn:hover {
+  background: rgba(29,158,117,0.14);
+}
+
+.wa-icon {
+  width: 16px;
+  height: 16px;
+  fill: #1d9e75;
+  flex-shrink: 0;
+}
+
+.call-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(26,107,191,0.08);
+  border: 1px solid rgba(26,107,191,0.2);
+  color: #1a6bbf;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.call-btn:hover {
+  background: rgba(26,107,191,0.14);
+}
+
+/* note */
+.card-note {
+  margin-top: 10px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+  color: #6b7a8d;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+/* full card overlay */
+.full-overlay {
+  text-align: center;
+  padding: 8px 0 0;
+  font-size: 12px;
+  color: #4a5568;
+}
+
+/* ── Empty state ─────────────────────────────────────────────────────────── */
+.find-empty {
+  text-align: center;
+  padding: 60px 24px;
+}
+
+.find-empty-icon {
+  font-size: 40px;
+  margin-bottom: 16px;
+  opacity: 0.4;
+}
+
+.find-empty-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: #f0ede8;
+  margin-bottom: 8px;
+}
+
+.find-empty-sub {
+  font-size: 14px;
+  color: #4a5568;
+  line-height: 1.6;
+}
+
+/* ── Loading ─────────────────────────────────────────────────────────────── */
+.find-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  gap: 12px;
+}
+
+.find-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(26,107,191,0.2);
+  border-top-color: #1a6bbf;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.find-loading p {
+  font-size: 13px;
+  color: #4a5568;
+}
+
+/* ── Error ───────────────────────────────────────────────────────────────── */
+.find-error {
+  margin: 16px;
+  background: rgba(226,75,74,0.08);
+  border: 1px solid rgba(226,75,74,0.2);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: #e24b4a;
+  text-align: center;
+}
+
+.retry-btn {
+  background: none;
+  border: none;
+  color: #1a6bbf;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 8px;
+  text-decoration: underline;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 400px) {
+  .ride-card { padding: 14px; }
+  .card-flight { font-size: 16px; }
+}
