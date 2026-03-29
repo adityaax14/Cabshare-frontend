@@ -258,6 +258,7 @@ export default function LoginPage({ onAuthSuccess }) {
         <div className="trust-badge">
           <div className="trust-dot" />
           <p>MIT Manipal students only · Verified by college email</p>
+          <p className="creator-tag">Made by Aditya · CSE B · 2nd Year</p>
         </div>
 
       </div>
