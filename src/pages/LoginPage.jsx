@@ -1,8 +1,6 @@
 import { useState } from "react";
-import { apiLogin,apiSignup,apiForgotPassword } from "../services/api";
+import { apiLogin, apiSignup, apiForgotPassword } from "../services/api";
 import "../styles/LoginPage.css";
-
-const COLLEGE_DOMAIN = "@learner.manipal.edu";
 
 // ── SVG Logo ──────────────────────────────────────────────────────────────────
 function Logo({ size = 48 }) {
@@ -105,7 +103,7 @@ function ErrorBanner({ message }) {
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function LoginPage({ onAuthSuccess }) {
-  const [mode, setMode]               = useState("login"); // "login" | "signup"
+  const [mode, setMode]               = useState("login");
   const [step, setStep]               = useState(0);
   const [loading, setLoading]         = useState(false);
   const [serverError, setServerError] = useState("");
@@ -131,8 +129,8 @@ export default function LoginPage({ onAuthSuccess }) {
   // ── Validation ──────────────────────────────────────────────────────────────
   const validateLogin = () => {
     const e = {};
-    if (!form.email.endsWith(COLLEGE_DOMAIN))
-      e.email = `Must be a ${COLLEGE_DOMAIN} email`;
+    if (!form.email.includes("@"))
+      e.email = "Enter a valid email";
     if (!form.password)
       e.password = "Password is required";
     setErrors(e);
@@ -143,8 +141,8 @@ export default function LoginPage({ onAuthSuccess }) {
     const e = {};
     if (!form.name.trim())
       e.name = "Name is required";
-    if (!form.email.endsWith(COLLEGE_DOMAIN))
-      e.email = `Use your ${COLLEGE_DOMAIN} email`;
+    if (!form.email.includes("@"))
+      e.email = "Enter a valid email";
     if (!/^\d{10}$/.test(form.phone))
       e.phone = "Enter a valid 10-digit number";
     setErrors(e);
@@ -179,25 +177,24 @@ export default function LoginPage({ onAuthSuccess }) {
     if (validateStep0()) setStep(1);
   };
 
-  // signup → auto logged in by backend → go straight to app
   const handleStep1 = async () => {
-  if (!validateStep1()) return;
-  setLoading(true);
-  try {
-    await apiSignup(form);
-    // show success briefly then redirect
-    setServerError("");
-    alert("Account created! You're being signed in...");
-    onAuthSuccess?.();
-  } catch (err) {
-    setServerError(err.message);
-  } finally {
-    setLoading(false);
-  }
-};
+    if (!validateStep1()) return;
+    setLoading(true);
+    try {
+      await apiSignup(form);
+      setServerError("");
+      alert("Account created! You're being signed in...");
+      onAuthSuccess?.();
+    } catch (err) {
+      setServerError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleForgotPassword = async () => {
-    if (!form.email.endsWith(COLLEGE_DOMAIN)) {
-      setErrors(e => ({ ...e, email: `Enter your ${COLLEGE_DOMAIN} email first` }));
+    if (!form.email.includes("@")) {
+      setErrors(e => ({ ...e, email: "Enter your email first" }));
       return;
     }
     setLoading(true);
@@ -230,10 +227,10 @@ export default function LoginPage({ onAuthSuccess }) {
         <ErrorBanner message={serverError} />
 
         <Field
-          label="College Email" type="email"
-          placeholder={`yourname${COLLEGE_DOMAIN}`}
+          label="Email" type="email"
+          placeholder="your@email.com"
           value={form.email} onChange={v => setField("email", v)}
-          error={errors.email} hint={`Only ${COLLEGE_DOMAIN} emails allowed`}
+          error={errors.email}
         />
         <Field
           label="Password" type="password" placeholder="Your password"
@@ -257,7 +254,6 @@ export default function LoginPage({ onAuthSuccess }) {
 
         <div className="trust-badge">
           <div className="trust-dot" />
-          
           <p className="creator-tag">Made by Aditya · CSE B · 2nd Year</p>
         </div>
 
@@ -296,10 +292,10 @@ export default function LoginPage({ onAuthSuccess }) {
               error={errors.name}
             />
             <Field
-              label="College Email" type="email"
-              placeholder={`yourname${COLLEGE_DOMAIN}`}
+              label="Email" type="email"
+              placeholder="your@email.com"
               value={form.email} onChange={v => setField("email", v)}
-              error={errors.email} hint={`Must be your ${COLLEGE_DOMAIN} email`}
+              error={errors.email}
             />
             <Field
               label="Phone Number" type="tel" placeholder="10-digit mobile number"
