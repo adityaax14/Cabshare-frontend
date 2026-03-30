@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Analytics } from "@vercel/analytics/next"
 import LoginPage     from "./pages/LoginPage.jsx";
 import FindRidesPage from "./pages/Findridespage.jsx";
 import PostRidePage  from "./pages/Postridepage.jsx";
