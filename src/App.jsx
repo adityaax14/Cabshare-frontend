@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import LoginPage     from "./pages/LoginPage.jsx";
 import FindRidesPage from "./pages/Findridespage.jsx";
 import PostRidePage  from "./pages/Postridepage.jsx";
@@ -110,12 +111,15 @@ export default function App() {
 
   if (!isLoggedIn) {
     return (
-      <LoginPage
-        onAuthSuccess={() => {
-          setIsLoggedIn(true);
-          setActiveTab("find");
-        }}
-      />
+      <>
+        <LoginPage
+          onAuthSuccess={() => {
+            setIsLoggedIn(true);
+            setActiveTab("find");
+          }}
+        />
+        <Analytics />
+      </>
     );
   }
 
@@ -154,6 +158,7 @@ export default function App() {
           </button>
         ))}
       </nav>
+      <Analytics />
     </div>
   );
 }
