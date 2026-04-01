@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap');
+
+/* ── Design tokens ───────────────────────────────────────────────────────── */
+:root {
+  /* backgrounds — true blacks, not navy */
+  --bg-base:    #08080c;
+  --bg-card:    #0f0f14;
+  --bg-raised:  #16161d;
+  --bg-input:   #13131a;
+  --bg-hover:   #1c1c26;
+
+  /* borders */
+  --border-dim:    rgba(255,255,255,0.06);
+  --border-mid:    rgba(255,255,255,0.1);
+  --border-strong: rgba(255,255,255,0.18);
+
+  /* text */
+  --text-primary:   #eeeef0;
+  --text-secondary: #8888a0;
+  --text-muted:     #44445a;
+  --text-faint:     #2a2a3a;
+
+  /* accents — less saturated, more premium */
+  --blue:        #3b7fff;
+  --blue-dim:    rgba(59,127,255,0.1);
+  --blue-border: rgba(59,127,255,0.25);
+
+  --amber:        #f0a030;
+  --amber-dim:    rgba(240,160,48,0.1);
+  --amber-border: rgba(240,160,48,0.25);
+
+  --green:        #34c47c;
+  --green-dim:    rgba(52,196,124,0.08);
+  --green-border: rgba(52,196,124,0.2);
+
+  --red:        #f04040;
+  --red-dim:    rgba(240,64,64,0.08);
+  --red-border: rgba(240,64,64,0.2);
+
+  /* typography */
+  --font-sans: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* radii */
+  --r-sm:  8px;
+  --r-md:  12px;
+  --r-lg:  16px;
+  --r-xl:  20px;
+  --r-pill: 999px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
