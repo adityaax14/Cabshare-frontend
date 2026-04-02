@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import "../styles/ResetPasswordPage.css";
+import "../styles/Resetpasswordpage.css";
 
 // ── How Supabase reset flow works ─────────────────────────────────────────────
 // 1. User clicks "Forgot password" → backend calls supabase.auth.resetPasswordForEmail
