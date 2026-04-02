@@ -9,7 +9,7 @@ import "../styles/Resetpasswordpage.css";
 // 5. We call our backend with that token + new password
 // 6. Backend calls supabase.auth.admin.updateUserById to set the new password
 
-const BASE = "http://localhost:5000";
+const BASE = "https://cabshare-backend-qx4c.onrender.com";
 
 // ── Password strength ─────────────────────────────────────────────────────────
 function getStrength(pw) {
