@@ -4,7 +4,7 @@ import FindRidesPage     from "./pages/Findridespage.jsx";
 import PostRidePage      from "./pages/Postridepage.jsx";
 import MyRidesPage       from "./pages/Myridespage.jsx";
 import ResetPasswordPage from "./pages/Resetpasswordpage.jsx";
-import { tokenStore }    from "./services/api.js";
+import { tokenStore,apiLogout }    from "./services/api.js";
 import "./styles/Appshell.css";
 
 // ── Tab icons ─────────────────────────────────────────────────────────────────
