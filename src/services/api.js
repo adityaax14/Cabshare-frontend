@@ -1,26 +1,52 @@
 
-const BASE ="https://cabshare-backend-qx4c.onrender.com"
-// ── core request helper ───────────────────────────────────────────────────────
+const BASE = "https://cabshare-backend-qx4c.onrender.com";
+
+// ── Token storage ─────────────────────────────────────────────────────────────
+// Cookies don't work cross-origin (Vercel + Render = different domains).
+// Store tokens in localStorage, send as Authorization: Bearer header instead.
+const TOKEN_KEY   = "ctf_token";
+const REFRESH_KEY = "ctf_refresh";
+
+export const tokenStore = {
+  get:        ()  => localStorage.getItem(TOKEN_KEY),
+  set:        (t) => localStorage.setItem(TOKEN_KEY, t),
+  getRefresh: ()  => localStorage.getItem(REFRESH_KEY),
+  setRefresh: (t) => localStorage.setItem(REFRESH_KEY, t),
+  clear:      ()  => {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(REFRESH_KEY);
+  },
+};
+
+// ── Core request ──────────────────────────────────────────────────────────────
 async function request(path, options = {}) {
+  const token = tokenStore.get();
+
   const res = await fetch(`${BASE}${path}`, {
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     ...options,
   });
 
   const data = await res.json();
 
-  if (!res.ok) {
-    throw new Error(data.error || "Something went wrong");
-  }
+  if (!res.ok) throw new Error(data.error || "Something went wrong");
 
   return data;
 }
 
-// ── auth ──────────────────────────────────────────────────────────────────────
+// ── Save tokens after login / signup ──────────────────────────────────────────
+function saveTokens(data) {
+  if (data.access_token)  tokenStore.set(data.access_token);
+  if (data.refresh_token) tokenStore.setRefresh(data.refresh_token);
+}
 
-export const apiSignup = (form) =>
-  request("/auth/signup", {
+// ── Auth ──────────────────────────────────────────────────────────────────────
+
+export const apiSignup = async (form) => {
+  const data = await request("/auth/signup", {
     method: "POST",
     body: JSON.stringify({
       full_name: form.name,
@@ -29,18 +55,26 @@ export const apiSignup = (form) =>
       password:  form.password,
     }),
   });
+  saveTokens(data);
+  return data;
+};
 
-export const apiLogin = (form) =>
-  request("/auth/login", {
+export const apiLogin = async (form) => {
+  const data = await request("/auth/login", {
     method: "POST",
     body: JSON.stringify({
       email:    form.email,
       password: form.password,
     }),
   });
+  saveTokens(data);
+  return data;
+};
 
-export const apiLogout = () =>
-  request("/auth/logout", { method: "POST" });
+export const apiLogout = async () => {
+  try { await request("/auth/logout", { method: "POST" }); } catch { /* ignore */ }
+  tokenStore.clear();
+};
 
 export const apiForgotPassword = (email) =>
   request("/auth/forgot-password", {
@@ -48,10 +82,9 @@ export const apiForgotPassword = (email) =>
     body: JSON.stringify({ email }),
   });
 
-// ── user ──────────────────────────────────────────────────────────────────────
+// ── User ──────────────────────────────────────────────────────────────────────
 
-export const apiGetMe = () =>
-  request("/user/me");
+export const apiGetMe = () => request("/user/me");
 
 export const apiUpdateProfile = (updates) =>
   request("/user/update", {
@@ -59,7 +92,7 @@ export const apiUpdateProfile = (updates) =>
     body: JSON.stringify(updates),
   });
 
-// ── rides ─────────────────────────────────────────────────────────────────────
+// ── Rides ─────────────────────────────────────────────────────────────────────
 
 export const apiGetRides = (date) =>
   request(`/rides${date ? `?date=${date}` : ""}`);
@@ -73,7 +106,6 @@ export const apiCreateRide = (ride) =>
     body: JSON.stringify(ride),
   });
 
-// update how many seats are filled (when someone contacts you and joins)
 export const apiUpdateSeats = (id, filled_seats) =>
   request(`/rides/${id}/seats`, {
     method: "PATCH",

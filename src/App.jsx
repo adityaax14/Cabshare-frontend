@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
-
-import LoginPage     from "./pages/LoginPage.jsx";
-import FindRidesPage from "./pages/Findridespage.jsx";
-import PostRidePage  from "./pages/Postridepage.jsx";
-import MyRidesPage   from "./pages/Myridespage.jsx";
+import LoginPage         from "./pages/LoginPage.jsx";
+import FindRidesPage     from "./pages/Findridespage.jsx";
+import PostRidePage      from "./pages/Postridepage.jsx";
+import MyRidesPage       from "./pages/Myridespage.jsx";
 import ResetPasswordPage from "./pages/Resetpasswordpage.jsx";
+import { tokenStore }    from "./services/api.js";
 import "./styles/Appshell.css";
-
 
 // ── Tab icons ─────────────────────────────────────────────────────────────────
 function IconFind({ active }) {
@@ -49,84 +48,31 @@ const TABS = [
   { key: "myrides", label: "My Rides",  Icon: IconMyRides },
 ];
 
-// ── Splash ────────────────────────────────────────────────────────────────────
-function Splash() {
-  return (
-    <div style={{
-      minHeight: "100vh", background: "#08080c",
-      display: "flex", flexDirection: "column",
-      alignItems: "center", justifyContent: "center", gap: 16,
-    }}>
-      <svg width="40" height="40" viewBox="0 0 64 64" fill="none">
-        <rect x="8" y="38" width="38" height="14" rx="5" fill="#f0a030" />
-        <rect x="14" y="30" width="26" height="12" rx="4" fill="#f0a030" />
-        <rect x="16" y="32" width="10" height="8" rx="2" fill="#08080c" opacity="0.5" />
-        <rect x="28" y="32" width="10" height="8" rx="2" fill="#08080c" opacity="0.5" />
-        <circle cx="16" cy="52" r="5" fill="#08080c" />
-        <circle cx="16" cy="52" r="2.5" fill="#555" />
-        <circle cx="36" cy="52" r="5" fill="#08080c" />
-        <circle cx="36" cy="52" r="2.5" fill="#555" />
-        <g transform="rotate(-30 44 20)">
-          <ellipse cx="44" cy="20" rx="14" ry="4" fill="#3b7fff" />
-          <polygon points="58,20 62,16 62,24" fill="#3b7fff" />
-          <polygon points="36,16 30,10 36,20" fill="#3b7fff" />
-          <polygon points="36,24 30,30 36,20" fill="#2d6ee0" />
-        </g>
-      </svg>
-      <div style={{
-        width: 20, height: 20,
-        border: "2px solid rgba(59,127,255,0.2)",
-        borderTopColor: "#3b7fff",
-        borderRadius: "50%",
-        animation: "spin 0.7s linear infinite",
-      }} />
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-    </div>
-  );
-}
-
 // ── Check if URL is a Supabase reset link ─────────────────────────────────────
 function isResetPasswordURL() {
-  const hash = window.location.hash.slice(1);
-  const params = new URLSearchParams(hash);
+  const params = new URLSearchParams(window.location.hash.slice(1));
   return params.get("type") === "recovery" && !!params.get("access_token");
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [checking, setChecking]     = useState(true);
-  const [activeTab, setActiveTab]   = useState("find");
-  const [page, setPage]             = useState("main"); // "main" | "reset"
+  const [activeTab, setActiveTab] = useState("find");
+  const [page, setPage]           = useState("main");
+
+  // ── Auth state — read from localStorage instantly, no network call ───────────
+  // This is the key fix: instead of calling /user/me on every load (which hits
+  // Render's cold start = 15 sec wait), we just check if a token exists in
+  // localStorage. Token is saved on login/signup, cleared on logout.
+  const [isLoggedIn, setIsLoggedIn] = useState(() => !!tokenStore.get());
 
   useEffect(() => {
-    // if the URL contains a Supabase recovery token → show reset page immediately
+    // handle password reset link from email
     if (isResetPasswordURL()) {
       setPage("reset");
-      setChecking(false);
-      return;
     }
-
-    // otherwise check if user is already logged in via cookies
-    const checkAuth = async () => {
-      try {
-        const res = await fetch("http://localhost:5000/user/me", {
-          credentials: "include",
-        });
-        if (res.ok) setIsLoggedIn(true);
-      } catch {
-        // not logged in
-      } finally {
-        setChecking(false);
-      }
-    };
-
-    checkAuth();
   }, []);
 
-  if (checking) return <Splash />;
-
-  // ── Reset password page (opened from email link) ───────────────────────────
+  // ── Reset page ─────────────────────────────────────────────────────────────
   if (page === "reset") return (
     <ResetPasswordPage
       onBack={() => {
@@ -136,7 +82,7 @@ export default function App() {
     />
   );
 
-  // ── Auth gate ──────────────────────────────────────────────────────────────
+  // ── Login ──────────────────────────────────────────────────────────────────
   if (!isLoggedIn) return (
     <LoginPage
       onAuthSuccess={() => {
@@ -160,7 +106,8 @@ export default function App() {
         {activeTab === "myrides" && (
           <MyRidesPage
             onPostRide={() => setActiveTab("post")}
-            onLogout={() => {
+            onLogout={async () => {
+              await apiLogout();
               setIsLoggedIn(false);
               setActiveTab("find");
             }}
