@@ -2,8 +2,6 @@
 const BASE = "https://cabshare-backend-qx4c.onrender.com";
 
 // ── Token storage ─────────────────────────────────────────────────────────────
-// Cookies don't work cross-origin (Vercel + Render = different domains).
-// Store tokens in localStorage, send as Authorization: Bearer header instead.
 const TOKEN_KEY   = "ctf_token";
 const REFRESH_KEY = "ctf_refresh";
 
@@ -18,8 +16,105 @@ export const tokenStore = {
   },
 };
 
-// ── Core request ──────────────────────────────────────────────────────────────
+// ── Global auth-expired handler ───────────────────────────────────────────────
+// App.jsx sets this so we can kick the user to login immediately
+let _onAuthExpired = null;
+export function setOnAuthExpired(fn) { _onAuthExpired = fn; }
+
+// ── JWT helpers ───────────────────────────────────────────────────────────────
+// Decode a JWT payload without any library (works in all browsers)
+function decodeJwtPayload(token) {
+  try {
+    const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    return JSON.parse(atob(base64));
+  } catch {
+    return null;
+  }
+}
+
+// Check if the access token is expired (or will expire in the next 60 seconds)
+function isTokenExpired(token) {
+  if (!token) return true;
+  const payload = decodeJwtPayload(token);
+  if (!payload || !payload.exp) return true;
+  // Add 60-second buffer — treat as expired if it expires within a minute
+  return Date.now() >= (payload.exp * 1000) - 60_000;
+}
+
+// ── Silent token refresh ──────────────────────────────────────────────────────
+let _refreshPromise = null; // prevent multiple simultaneous refreshes
+
+async function silentRefresh() {
+  // If a refresh is already in progress, wait for it
+  if (_refreshPromise) return _refreshPromise;
+
+  const refreshToken = tokenStore.getRefresh();
+  if (!refreshToken) return false;
+
+  _refreshPromise = (async () => {
+    try {
+      // Use a 10-second timeout — don't wait for Render's cold start
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10_000);
+
+      const res = await fetch(`${BASE}/auth/refresh`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refresh_token: refreshToken }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeout);
+      if (!res.ok) return false;
+
+      const data = await res.json();
+      if (data.access_token) {
+        tokenStore.set(data.access_token);
+        if (data.refresh_token) tokenStore.setRefresh(data.refresh_token);
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    } finally {
+      _refreshPromise = null;
+    }
+  })();
+
+  return _refreshPromise;
+}
+
+// ── Ensure we have a valid token before making any API call ───────────────────
+// This is the KEY fix: instead of sending an expired token to a cold-starting
+// Render server (which takes 1-4 minutes just to tell us "token expired"),
+// we check expiry client-side FIRST and refresh proactively.
+async function ensureValidToken() {
+  const token = tokenStore.get();
+  if (!token) return false;
+
+  if (!isTokenExpired(token)) return true; // still valid, proceed
+
+  // Token is expired — try silent refresh
+  const refreshed = await silentRefresh();
+  if (refreshed) return true;
+
+  // Refresh failed — session is truly dead
+  tokenStore.clear();
+  _onAuthExpired?.();
+  return false;
+}
+
+// ── Core request (with auto-retry on 401) ─────────────────────────────────────
 async function request(path, options = {}) {
+  // Step 1: proactively refresh if token looks expired
+  const hasAuth = await ensureValidToken();
+
+  // If this is an authenticated endpoint and we have no valid token, bail fast
+  const isPublicPath = path === "/auth/login" || path === "/auth/signup" || path === "/auth/forgot-password";
+  if (!hasAuth && !isPublicPath) {
+    throw new Error("Session expired. Please log in again.");
+  }
+
   const token = tokenStore.get();
 
   const res = await fetch(`${BASE}${path}`, {
@@ -30,8 +125,31 @@ async function request(path, options = {}) {
     ...options,
   });
 
-  const data = await res.json();
+  // Step 2: if we still get a 401 (edge case: token expired between check and request),
+  // try one more refresh + retry
+  if (res.status === 401 && !isPublicPath) {
+    const refreshed = await silentRefresh();
+    if (refreshed) {
+      const newToken = tokenStore.get();
+      const retryRes = await fetch(`${BASE}${path}`, {
+        headers: {
+          "Content-Type": "application/json",
+          ...(newToken ? { Authorization: `Bearer ${newToken}` } : {}),
+        },
+        ...options,
+      });
+      const retryData = await retryRes.json();
+      if (!retryRes.ok) throw new Error(retryData.error || "Something went wrong");
+      return retryData;
+    }
 
+    // Refresh failed — force re-login
+    tokenStore.clear();
+    _onAuthExpired?.();
+    throw new Error("Session expired. Please log in again.");
+  }
+
+  const data = await res.json();
   if (!res.ok) throw new Error(data.error || "Something went wrong");
 
   return data;
