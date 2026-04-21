@@ -185,7 +185,7 @@ function MyRideCard({ ride, onCancel, onSeatsUpdated }) {
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
-export default function MyRidesPage({ onPostRide, onSwitchUser }) {
+export default function MyRidesPage({ onPostRide, onLogout }) {
   const [rides, setRides]     = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState("");
@@ -229,7 +229,7 @@ export default function MyRidesPage({ onPostRide, onSwitchUser }) {
           <Logo size={28} />
           <span className="my-nav-title">My <span>Rides</span></span>
         </div>
-        <button className="logout-btn" onClick={onSwitchUser}>Switch User</button>
+        <button className="logout-btn" onClick={onLogout}>Logout</button>
       </div>
 
       {loading ? (

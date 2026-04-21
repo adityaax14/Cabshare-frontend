@@ -173,7 +173,7 @@ function fmtDate(dateStr) {
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
-export default function PostRidePage({ onRidePosted, onBack }) {
+export default function PostRidePage({ onRidePosted, onBack, onLogout }) {
   const [form, setForm] = useState({
     flight_number:   "",
     departure_date:  "",
@@ -295,9 +295,14 @@ export default function PostRidePage({ onRidePosted, onBack }) {
           <Logo size={30} />
           <span className="post-nav-title">Post a <span>Ride</span></span>
         </div>
-        <div className="post-nav-airport">
-          <div className="airport-dot" />
-          Mangalore · IXE
+        <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+          <div className="post-nav-airport">
+            <div className="airport-dot" />
+            Mangalore · IXE
+          </div>
+          {onLogout && (
+            <button className="logout-btn" onClick={onLogout}>Logout</button>
+          )}
         </div>
       </div>
 
