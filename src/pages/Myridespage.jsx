@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { apiGetMyRides, apiCancelRide, apiUpdateSeats, apiLogout } from "../services/api";
+import { apiGetMyRides, apiCancelRide, apiUpdateSeats } from "../services/api";
 import "../styles/Myridespage.css";
 
 function Logo({ size = 28 }) {
@@ -185,7 +185,7 @@ function MyRideCard({ ride, onCancel, onSeatsUpdated }) {
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
-export default function MyRidesPage({ onPostRide, onLogout }) {
+export default function MyRidesPage({ onPostRide, onSwitchUser }) {
   const [rides, setRides]     = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState("");
@@ -221,11 +221,6 @@ export default function MyRidesPage({ onPostRide, onLogout }) {
     );
   };
 
-  const handleLogout = async () => {
-    try { await apiLogout(); } catch { /* continue anyway */ }
-    onLogout?.();
-  };
-
   return (
     <div className="my-shell">
 
@@ -234,7 +229,7 @@ export default function MyRidesPage({ onPostRide, onLogout }) {
           <Logo size={28} />
           <span className="my-nav-title">My <span>Rides</span></span>
         </div>
-        <button className="logout-btn" onClick={handleLogout}>Sign out</button>
+        <button className="logout-btn" onClick={onSwitchUser}>Switch User</button>
       </div>
 
       {loading ? (
