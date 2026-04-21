@@ -1,9 +1,9 @@
 import { useState } from "react";
-import GuestEntryPage from "./pages/GuestEntryPage.jsx";
-import FindRidesPage  from "./pages/Findridespage.jsx";
-import PostRidePage   from "./pages/Postridepage.jsx";
-import MyRidesPage    from "./pages/Myridespage.jsx";
-import { guestStore, apiGuestLogout } from "./services/api.js";
+import LoginPage     from "./pages/LoginPage.jsx";
+import FindRidesPage from "./pages/Findridespage.jsx";
+import PostRidePage  from "./pages/Postridepage.jsx";
+import MyRidesPage   from "./pages/Myridespage.jsx";
+import { tokenStore, guestStore, apiLogout, apiGuestLogout } from "./services/api.js";
 import "./styles/Appshell.css";
 
 // ── Tab icons ─────────────────────────────────────────────────────────────────
@@ -41,28 +41,50 @@ function IconMyRides({ active }) {
   );
 }
 
-const TABS = [
-  { key: "find",    label: "Find Ride", Icon: IconFind    },
-  { key: "post",    label: "Post Ride", Icon: IconPost    },
-  { key: "myrides", label: "My Rides",  Icon: IconMyRides },
-];
-
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const [activeTab, setActiveTab] = useState("find");
 
-  // Guest session — simply check if guest info exists in localStorage
-  const [isGuest, setIsGuest] = useState(() => !!guestStore.get());
+  // Auth state: "none" | "user" | "guest"
+  const [authMode, setAuthMode] = useState(() => {
+    if (tokenStore.get()) return "user";
+    if (guestStore.get()) return "guest";
+    return "none";
+  });
 
-  // ── Guest entry ─────────────────────────────────────────────────────────────
-  if (!isGuest) return (
-    <GuestEntryPage
+  // ── Not logged in — show Login page ─────────────────────────────────────────
+  if (authMode === "none") return (
+    <LoginPage
+      onAuthSuccess={() => {
+        setAuthMode("user");
+        setActiveTab("find");
+      }}
       onGuestReady={() => {
-        setIsGuest(true);
+        setAuthMode("guest");
         setActiveTab("find");
       }}
     />
   );
+
+  // ── Determine which tabs to show ────────────────────────────────────────────
+  const isGuest = authMode === "guest";
+
+  const TABS = [
+    { key: "find",    label: "Find Ride", Icon: IconFind },
+    { key: "post",    label: "Post Ride", Icon: IconPost },
+    // My Rides only for logged-in users
+    ...(!isGuest ? [{ key: "myrides", label: "My Rides",  Icon: IconMyRides }] : []),
+  ];
+
+  const handleLogout = () => {
+    if (isGuest) {
+      apiGuestLogout();
+    } else {
+      apiLogout();
+    }
+    setAuthMode("none");
+    setActiveTab("find");
+  };
 
   // ── Main app ────────────────────────────────────────────────────────────────
   return (
@@ -71,18 +93,14 @@ export default function App() {
         {activeTab === "find" && <FindRidesPage />}
         {activeTab === "post" && (
           <PostRidePage
-            onRidePosted={() => setActiveTab("myrides")}
+            onRidePosted={() => !isGuest && setActiveTab("myrides")}
             onBack={() => setActiveTab("find")}
           />
         )}
-        {activeTab === "myrides" && (
+        {activeTab === "myrides" && !isGuest && (
           <MyRidesPage
             onPostRide={() => setActiveTab("post")}
-            onSwitchUser={() => {
-              apiGuestLogout();
-              setIsGuest(false);
-              setActiveTab("find");
-            }}
+            onSwitchUser={handleLogout}
           />
         )}
       </div>

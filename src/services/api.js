@@ -1,6 +1,22 @@
 
 const BASE = "https://cabshare-backend-qx4c.onrender.com";
 
+// ── Token storage (JWT auth) ──────────────────────────────────────────────────
+const TOKEN_KEY = "ctf_tokens";
+
+export const tokenStore = {
+  get: () => {
+    try {
+      const raw = localStorage.getItem(TOKEN_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  },
+  set: (tokens) => localStorage.setItem(TOKEN_KEY, JSON.stringify(tokens)),
+  clear: () => localStorage.removeItem(TOKEN_KEY),
+};
+
 // ── Guest storage ─────────────────────────────────────────────────────────────
 const GUEST_KEY = "ctf_guest";
 
@@ -19,11 +35,15 @@ export const guestStore = {
 
 // ── Core request ──────────────────────────────────────────────────────────────
 async function request(path, options = {}) {
+  const tokens = tokenStore.get();
   const guest = guestStore.get();
   const guestId = guest?.guest_id;
 
   const headers = {
     "Content-Type": "application/json",
+    ...(tokens?.access_token
+      ? { Authorization: `Bearer ${tokens.access_token}` }
+      : {}),
     ...(guestId ? { "x-guest-id": guestId } : {}),
     ...options.headers,
   };
@@ -38,6 +58,57 @@ async function request(path, options = {}) {
 
   return data;
 }
+
+// ── JWT auth ──────────────────────────────────────────────────────────────────
+
+export const apiLogin = async ({ email, password }) => {
+  const data = await request("/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
+
+  tokenStore.set({
+    access_token: data.access_token,
+    refresh_token: data.refresh_token,
+  });
+
+  return data;
+};
+
+export const apiSignup = async ({ name, email, phone, password }) => {
+  const data = await request("/auth/signup", {
+    method: "POST",
+    body: JSON.stringify({
+      full_name: name.trim(),
+      email,
+      phone,
+      password,
+    }),
+  });
+
+  tokenStore.set({
+    access_token: data.access_token,
+    refresh_token: data.refresh_token,
+  });
+
+  return data;
+};
+
+export const apiLogout = async () => {
+  try {
+    await request("/auth/logout", { method: "POST" });
+  } catch {
+    // ignore
+  }
+  tokenStore.clear();
+};
+
+export const apiForgotPassword = async (email) => {
+  return request("/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+};
 
 // ── Guest auth ────────────────────────────────────────────────────────────────
 

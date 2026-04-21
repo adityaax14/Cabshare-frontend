@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { apiLogin, apiSignup, apiForgotPassword } from "../services/api";
+import { apiLogin, apiSignup, apiForgotPassword, apiGuestLogin } from "../services/api";
 import "../styles/LoginPage.css";
 
 // ── SVG Logo ──────────────────────────────────────────────────────────────────
@@ -60,6 +60,7 @@ function Btn({ children, onClick, variant = "primary", disabled }) {
     primary: "btn-primary",
     orange:  "btn-orange",
     ghost:   "btn-ghost",
+    guest:   "btn-guest",
   }[variant];
   return (
     <button className={`btn ${cls}`} onClick={onClick} disabled={disabled}>
@@ -69,11 +70,11 @@ function Btn({ children, onClick, variant = "primary", disabled }) {
 }
 
 // ── Divider ───────────────────────────────────────────────────────────────────
-function Divider() {
+function Divider({ text = "or" }) {
   return (
     <div className="divider">
       <div className="divider-line" />
-      <span>or</span>
+      <span>{text}</span>
       <div className="divider-line" />
     </div>
   );
@@ -102,7 +103,8 @@ function ErrorBanner({ message }) {
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
-export default function LoginPage({ onAuthSuccess }) {
+export default function LoginPage({ onAuthSuccess, onGuestReady }) {
+  // mode: "login" | "signup" | "guest"
   const [mode, setMode]               = useState("login");
   const [step, setStep]               = useState(0);
   const [loading, setLoading]         = useState(false);
@@ -159,6 +161,14 @@ export default function LoginPage({ onAuthSuccess }) {
     return !Object.keys(e).length;
   };
 
+  const validateGuest = () => {
+    const e = {};
+    if (!form.name.trim()) e.name = "Name is required";
+    if (!/^\d{10}$/.test(form.phone)) e.phone = "Enter a valid 10-digit number";
+    setErrors(e);
+    return !Object.keys(e).length;
+  };
+
   // ── Handlers ────────────────────────────────────────────────────────────────
   const handleLogin = async () => {
     if (!validateLogin()) return;
@@ -208,6 +218,78 @@ export default function LoginPage({ onAuthSuccess }) {
     }
   };
 
+  const handleGuestContinue = async () => {
+    if (!validateGuest()) return;
+    setLoading(true);
+    setServerError("");
+    try {
+      await apiGuestLogin({ name: form.name.trim(), phone: form.phone });
+      onGuestReady?.();
+    } catch (err) {
+      setServerError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ── Guest entry screen ─────────────────────────────────────────────────────
+  if (mode === "guest") return (
+    <div className="auth-shell">
+      <div className="auth-card">
+
+        <div className="brand-row">
+          <Logo size={44} />
+          <div>
+            <p className="brand-name">Cab to <span>Flight</span></p>
+            <p className="brand-college">Manipal Institute of Technology</p>
+          </div>
+        </div>
+
+        <h2 className="auth-heading">Quick Access</h2>
+        <p className="auth-sub">
+          Enter your name and phone to find or post cab pools.
+          <br />
+          <span className="guest-note">You won't have access to My Rides.</span>
+        </p>
+
+        <ErrorBanner message={serverError} />
+
+        <Field
+          label="Your Name"
+          placeholder="As on your ID card"
+          value={form.name}
+          onChange={v => setField("name", v)}
+          error={errors.name}
+        />
+        <Field
+          label="Phone Number"
+          type="tel"
+          placeholder="10-digit mobile number"
+          value={form.phone}
+          onChange={v => setField("phone", v.replace(/\D/g, "").slice(0, 10))}
+          hint="Others will see this so they can reach you"
+          error={errors.phone}
+        />
+
+        <Btn onClick={handleGuestContinue} variant="orange" disabled={loading}>
+          {loading ? "Setting up…" : "Let's Go →"}
+        </Btn>
+
+        <Divider />
+
+        <Btn variant="ghost" onClick={() => { setMode("login"); clearAll(); }}>
+          ← Back to Sign In
+        </Btn>
+
+        <div className="trust-badge">
+          <div className="trust-dot" />
+          <p className="creator-tag">Made by Aditya · CSE B · 2nd Year</p>
+        </div>
+
+      </div>
+    </div>
+  );
+
   // ── Login screen ────────────────────────────────────────────────────────────
   if (mode === "login") return (
     <div className="auth-shell">
@@ -250,6 +332,12 @@ export default function LoginPage({ onAuthSuccess }) {
 
         <Btn variant="ghost" onClick={() => { setMode("signup"); clearAll(); }}>
           Create an account
+        </Btn>
+
+        <Divider text="or skip sign in" />
+
+        <Btn variant="guest" onClick={() => { setMode("guest"); clearAll(); }}>
+          👤 Continue as Guest
         </Btn>
 
         <div className="trust-badge">
