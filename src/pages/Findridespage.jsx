@@ -240,7 +240,7 @@ function RideCard({ ride }) {
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
-export default function FindRidesPage() {
+export default function FindRidesPage({ onLogout }) {
   const [rides, setRides]     = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState("");
@@ -296,11 +296,16 @@ export default function FindRidesPage() {
           <Logo size={28} />
           <span className="find-nav-title">Find a <span>Ride</span></span>
         </div>
-        {!loading && (
-          <span className="find-nav-count">
-            {displayed.length} ride{displayed.length !== 1 ? "s" : ""}
-          </span>
-        )}
+        <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+          {!loading && (
+            <span className="find-nav-count">
+              {displayed.length} ride{displayed.length !== 1 ? "s" : ""}
+            </span>
+          )}
+          {onLogout && (
+            <button className="logout-btn" onClick={onLogout}>Logout</button>
+          )}
+        </div>
       </div>
 
       <div className="find-filters">

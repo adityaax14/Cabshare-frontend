@@ -90,7 +90,7 @@ export default function App() {
   return (
     <div className="app-shell">
       <div className="app-content">
-        {activeTab === "find" && <FindRidesPage />}
+        {activeTab === "find" && <FindRidesPage onLogout={isGuest ? handleLogout : undefined} />}
         {activeTab === "post" && (
           <PostRidePage
             onRidePosted={() => !isGuest && setActiveTab("myrides")}
