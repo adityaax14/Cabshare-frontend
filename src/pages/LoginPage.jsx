@@ -145,8 +145,8 @@ export default function LoginPage({ onAuthSuccess, onGuestReady }) {
       e.name = "Name is required";
     if (!form.email.includes("@"))
       e.email = "Enter a valid email";
-    if (!/^\d{10}$/.test(form.phone))
-      e.phone = "Enter a valid 10-digit number";
+    if (!/^[6-9]\d{9}$/.test(form.phone))
+      e.phone = "Enter a valid 10-digit Indian number";
     setErrors(e);
     return !Object.keys(e).length;
   };
@@ -164,7 +164,7 @@ export default function LoginPage({ onAuthSuccess, onGuestReady }) {
   const validateGuest = () => {
     const e = {};
     if (!form.name.trim()) e.name = "Name is required";
-    if (!/^\d{10}$/.test(form.phone)) e.phone = "Enter a valid 10-digit number";
+    if (!/^[6-9]\d{9}$/.test(form.phone)) e.phone = "Enter a valid 10-digit Indian number";
     setErrors(e);
     return !Object.keys(e).length;
   };
