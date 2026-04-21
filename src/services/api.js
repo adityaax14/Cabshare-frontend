@@ -45,6 +45,7 @@ async function request(path, options = {}) {
       ? { Authorization: `Bearer ${tokens.access_token}` }
       : {}),
     ...(guestId ? { "x-guest-id": guestId } : {}),
+    "x-bot-check": "cabshare-manipal-2024",
     ...options.headers,
   };
 
